@@ -37,7 +37,7 @@ eventEmitter.on('READY_TO_PLAY', () => {
         );
         io.to(player2.socketID).emit(
             'GAME',
-            { ...game, you_play_with: 'O', rival: player1 },
+            { ...game, you_play_with: 'X', rival: player1 },
         );
     } else {
         console.log('not enough players online to match a game');
@@ -71,7 +71,7 @@ io.on('connection', (socket) => {
                     'GAME_CAN_START',
                     {
                         ...res.game,
-                        you_play_with: 'O',
+                        you_play_with: 'X',
                         rival: res.game.player1,
                         you_are: res.game.player2.email,
                     },
