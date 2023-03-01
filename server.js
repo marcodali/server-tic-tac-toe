@@ -21,7 +21,7 @@ eventEmitter.on('READY_TO_PLAY', () => {
     console.log('listening...', wannaPlayUsers);
     if (wannaPlayUsers.length >= 2) {
         const player1 = wannaPlayUsers.shift();
-        const player2 = wannaPlayUsers.shift();
+        const player2 = wannaPlayUsers.pop();
         const game = {
             matchID: Math.round(Math.random() * (9999 - 10)) + 10,
             player1,
