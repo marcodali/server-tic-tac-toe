@@ -14,6 +14,8 @@ const matchSocketWithEmails = {};
 const wannaPlayUsers = [];
 const games = {};
 
+try {
+
 // event listener 'READY_TO_PLAY'
 eventEmitter.on('READY_TO_PLAY', () => {
     console.log('listening...', wannaPlayUsers);
@@ -224,6 +226,10 @@ io.on('connection', (socket) => {
         console.log('with new socket id', socket.id, matchSocketWithEmails[socket.id]);
     });
 });
+
+} catch (err) {
+    console.error(err);
+}
 
 server.listen(process.env.PORT || 3000, () => {
   console.log(`listening on http://localhost:${process.env.PORT || 3000}`);
