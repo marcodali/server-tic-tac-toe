@@ -56,16 +56,25 @@ io.on('connection', (socket) => {
             console.log('after sum', games[res.game.matchID].acceptedInvitations);
             if (games[res.game.matchID].acceptedInvitations === 2) {
                 console.log('entered here because 2 === ', games[res.game.matchID].acceptedInvitations);
-                console.log('notifying GAME_CAN_START to', res.game.player1, res.game.player2);
                 
                 // player 1 is always X
                 io.to(res.game.player1.socketID).emit(
                     'GAME_CAN_START',
-                    { ...res.game, you_play_with: 'X', rival: res.game.player2 },
+                    {
+                        ...res.game,
+                        you_play_with: 'X',
+                        rival: res.game.player2,
+                        you_are: res.game.player1.email,
+                    },
                 );
                 io.to(res.game.player2.socketID).emit(
                     'GAME_CAN_START',
-                    { ...res.game, you_play_with: 'O', rival: res.game.player1 },
+                    {
+                        ...res.game,
+                        you_play_with: 'O',
+                        rival: res.game.player1,
+                        you_are: res.game.player2.email,
+                    },
                 );
 
                 /**
@@ -85,6 +94,16 @@ io.on('connection', (socket) => {
                 emails[matchSocketWithEmails[
                     res.game.player2.socketID
                 ].email].matchID = res.game.matchID;
+
+                console.log(
+                    'notifying GAME_CAN_START to both players',
+                    emails[matchSocketWithEmails[
+                        res.game.player1.socketID
+                    ].email],
+                    emails[matchSocketWithEmails[
+                        res.game.player2.socketID
+                    ].email]
+                );
             }
         } else {
             /**
