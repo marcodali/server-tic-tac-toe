@@ -14,10 +14,6 @@ const matchSocketWithEmails = {};
 const wannaPlayUsers = [];
 const games = {};
 
-app.get('/', (req, res) => {
-    res.sendFile('index.html', { root: '.' });
-});
-
 // event listener 'READY_TO_PLAY'
 eventEmitter.on('READY_TO_PLAY', () => {
     console.log('listening...', wannaPlayUsers);
