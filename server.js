@@ -67,6 +67,24 @@ io.on('connection', (socket) => {
                     'GAME_CAN_START',
                     { ...res.game, you_play_with: 'O', rival: res.game.player1 },
                 );
+
+                /**
+                 * change status of both players to GAMING
+                 */
+                // player 1
+                emails[matchSocketWithEmails[
+                    res.game.player1.socketID
+                ].email].status = 'GAMING';
+                emails[matchSocketWithEmails[
+                    res.game.player1.socketID
+                ].email].matchID = res.game.matchID;
+                // player 2
+                emails[matchSocketWithEmails[
+                    res.game.player2.socketID
+                ].email].status = 'GAMING';
+                emails[matchSocketWithEmails[
+                    res.game.player2.socketID
+                ].email].matchID = res.game.matchID;
             }
         } else {
             /**
@@ -129,7 +147,13 @@ io.on('connection', (socket) => {
         io.emit('leaderBoard', { leaderBoard });
     });
 
-
+    socket.on('TIRADA', (data) => {
+        const { player1, player2 } = games[emails[
+            matchSocketWithEmails[socket.id].email
+        ].matchID];
+        const rivalSocketID = socket.id === player1.socketID ? player2.socketID : player1.socketID;
+        io.to(rivalSocketID).emit('TIRADA_RIVAL', data);
+    });
 
     socket.on('LOGIN', (data, callback) => {
         /**
@@ -146,6 +170,7 @@ io.on('connection', (socket) => {
             emails[data.email].isActive = true;
             emails[data.email].status = 'WAITING';
             emails[data.email].socketID = socket.id;
+            emails[data.email].matchID = null;
         } else {
             // sign up
             emails[data.email] = {
@@ -154,6 +179,7 @@ io.on('connection', (socket) => {
                 email: data.email,
                 status: 'WAITING',
                 socketID: socket.id,
+                matchID: null,
             };
         }
 
