@@ -160,10 +160,10 @@ io.on('connection', (socket) => {
     });
 
     socket.on('UPDATE', (email) => {
-        const oldSocketID = emails[data.email].socketID;
-        emails[data.email].socketID = socket.id;
+        const oldSocketID = emails[email].socketID;
+        emails[email].socketID = socket.id;
         delete matchSocketWithEmails[oldSocketID];
-        matchSocketWithEmails[socket.id] = emails[data.email];
+        matchSocketWithEmails[socket.id] = emails[email];
     });
 });
 
