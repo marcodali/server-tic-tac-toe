@@ -148,6 +148,9 @@ io.on('connection', (socket) => {
     });
 
     socket.on('TIRADA', (data) => {
+        console.log('inside TIRADA');
+        console.log('your socket id is', socket.id);
+        console.log('matchSocketWithEmails', matchSocketWithEmails);
         const { player1, player2 } = games[emails[
             matchSocketWithEmails[socket.id].email
         ].matchID];
@@ -195,9 +198,11 @@ io.on('connection', (socket) => {
 
     socket.on('UPDATE', (email) => {
         const oldSocketID = emails[email].socketID;
+        console.log('inside UPDATE replacing old', oldSocketID, matchSocketWithEmails[oldSocketID]);
         emails[email].socketID = socket.id;
         delete matchSocketWithEmails[oldSocketID];
         matchSocketWithEmails[socket.id] = emails[email];
+        console.log('with new socket id', socket.id, matchSocketWithEmails[socket.id]);
     });
 });
 
