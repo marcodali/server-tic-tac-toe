@@ -141,6 +141,7 @@ io.on('connection', (socket) => {
             console.log('totalParticipants', totalParticipants);
             io.emit('totalParticipants', totalParticipants);
             emails[matchSocketWithEmails[socket.id].email].isActive = false;
+            emails[matchSocketWithEmails[socket.id].email].status = 'OFFLINE';
             console.log('emails', emails);
             delete matchSocketWithEmails[socket.id];
         }
@@ -158,8 +159,10 @@ io.on('connection', (socket) => {
 
     socket.on('WIN', (data) => {
         console.log(data.winner, 'has just defeated', data.looser);
-        emails[data.winner].winStrike += 1;
-        emails[data.looser].winStrike = 0;
+        emails[data.winner.email].winStrike += 1;
+        emails[data.winner.email].status = 'WAITING';
+        emails[data.looser.email].winStrike = 0;
+        emails[data.looser.email].status = 'WAITING';
         leaderBoard = [];
         Object.keys(emails).forEach(key => leaderBoard.push(emails[key]));
         leaderBoard
@@ -224,6 +227,29 @@ io.on('connection', (socket) => {
         delete matchSocketWithEmails[oldSocketID];
         matchSocketWithEmails[socket.id] = emails[email];
         console.log('with new socket id', socket.id, matchSocketWithEmails[socket.id]);
+    });
+
+    socket.on('GET_GAME_DATA', (_data, callback) => {
+        if (matchSocketWithEmails[socket.id]) {
+            const game = games[matchSocketWithEmails[socket.id].matchID];
+            if (game.player1.socketID === socket.id) {
+                // player1 has requested game info
+                game.you_are = game.player1.email;
+                game.you_play_with = 'X';
+                game.rival = game.player2;
+            } else {
+                // player2 has requested game info
+                game.you_are = game.player2.email;
+                game.you_play_with = 'O';
+                game.rival = game.player1;
+            }
+            callback({
+                answer: 'OK',
+                game,
+            });
+        } else {
+            callback({ answer: 'This socket does not have an active game' });
+        }
     });
 });
 
