@@ -1,6 +1,12 @@
 {
   "name": "tic-tac-toe-matching-system",
   "version": "0.0.1",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
   "description": "all you need for a tic-tac-toe multiplayer game online",
   "type": "module",
   "dependencies": {
