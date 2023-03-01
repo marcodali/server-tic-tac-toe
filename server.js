@@ -18,35 +18,6 @@ app.get('/', (req, res) => {
     res.sendFile('index.html', { root: '.' });
 });
 
-const readyToPlayCallbackResponseHandler = (res) => {
-    if (res.answer === 'ACCEPTED_MATCH') {
-        games[res.game.matchID].acceptedInvitations += 1;
-        if (games[res.game.matchID].acceptedInvitations === 2) {
-            io
-                .to(res.game.player1.socketID)
-                .to(res.game.player2.socketID)
-                .emit('GAME_CAN_START');
-        }
-    } else {
-        /**
-         * uno de los usuarios o los dos, no aceptaron
-         * la invitacion para empezar a jugar, entonces
-         * vamos a regresar a ambos al lobby a esperar
-         * ser emparejados de nuevo
-         */
-        emails[matchSocketWithEmails[
-            res.game.player1.socketID
-        ].email].status = 'WAITING';
-        emails[matchSocketWithEmails[
-            res.game.player2.socketID
-        ].email].status = 'WAITING';
-        io
-            .to(res.game.player1.socketID)
-            .to(res.game.player2.socketID)
-            .emit('GAME_CANCELLED');
-    }
-};
-
 // event listener 'READY_TO_PLAY'
 eventEmitter.on('READY_TO_PLAY', () => {
     console.log('listening...', wannaPlayUsers);
@@ -66,12 +37,10 @@ eventEmitter.on('READY_TO_PLAY', () => {
         io.to(player1.socketID).emit(
             'GAME',
             { ...game, you_play_with: 'X', rival: player2 },
-            readyToPlayCallbackResponseHandler,
         );
         io.to(player2.socketID).emit(
             'GAME',
             { ...game, you_play_with: 'O', rival: player1 },
-            readyToPlayCallbackResponseHandler,
         );
     } else {
         console.log('not enough players online to match a game');
@@ -80,6 +49,35 @@ eventEmitter.on('READY_TO_PLAY', () => {
 
 io.on('connection', (socket) => {
     console.log('anonymous connected');
+
+    socket.on('RESPUESTA_GAME', (res) => {
+        if (res.answer === 'ACCEPTED_MATCH') {
+            games[res.game.matchID].acceptedInvitations += 1;
+            if (games[res.game.matchID].acceptedInvitations === 2) {
+                io
+                    .to(res.game.player1.socketID)
+                    .to(res.game.player2.socketID)
+                    .emit('GAME_CAN_START');
+            }
+        } else {
+            /**
+             * uno de los usuarios o los dos, no aceptaron
+             * la invitacion para empezar a jugar, entonces
+             * vamos a regresar a ambos al lobby a esperar
+             * ser emparejados de nuevo
+             */
+            emails[matchSocketWithEmails[
+                res.game.player1.socketID
+            ].email].status = 'WAITING';
+            emails[matchSocketWithEmails[
+                res.game.player2.socketID
+            ].email].status = 'WAITING';
+            io
+                .to(res.game.player1.socketID)
+                .to(res.game.player2.socketID)
+                .emit('GAME_CANCELLED');
+        }
+    });
 
     socket.on("disconnecting", () => {
         // the Set contains at least the socket ID
