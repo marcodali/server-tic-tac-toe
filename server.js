@@ -27,6 +27,7 @@ eventEmitter.on('READY_TO_PLAY', () => {
         };
         games[game.matchID] = {
             acceptedInvitations: 0,
+            ...game,
         };
 
         // player 1 is always X
@@ -55,14 +56,17 @@ io.on('connection', (socket) => {
             console.log('after sum', games[res.game.matchID].acceptedInvitations);
             if (games[res.game.matchID].acceptedInvitations === 2) {
                 console.log('entered here because 2 === ', games[res.game.matchID].acceptedInvitations);
-                console.log('notifying GAME_CAN_START to',
-                res.game.player1,
-                res.game.player2,
+                console.log('notifying GAME_CAN_START to', res.game.player1, res.game.player2);
+                
+                // player 1 is always X
+                io.to(res.game.player1.socketID).emit(
+                    'GAME_CAN_START',
+                    { ...res.game, you_play_with: 'X', rival: res.game.player2 },
                 );
-                io
-                    .to(res.game.player1.socketID)
-                    .to(res.game.player2.socketID)
-                    .emit('GAME_CAN_START');
+                io.to(res.game.player2.socketID).emit(
+                    'GAME_CAN_START',
+                    { ...res.game, you_play_with: 'O', rival: res.game.player1 },
+                );
             }
         } else {
             /**
