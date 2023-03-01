@@ -47,9 +47,18 @@ io.on('connection', (socket) => {
     console.log('anonymous connected');
 
     socket.on('RESPUESTA_GAME', (res) => {
+        console.log('inside RESPUESTA_GAME', res);
+        console.log('games', games);
         if (res.answer === 'ACCEPTED_MATCH') {
+            console.log('before sum', games[res.game.matchID].acceptedInvitations);
             games[res.game.matchID].acceptedInvitations += 1;
+            console.log('after sum', games[res.game.matchID].acceptedInvitations);
             if (games[res.game.matchID].acceptedInvitations === 2) {
+                console.log('entered here because 2 === ', games[res.game.matchID].acceptedInvitations);
+                console.log('notifying GAME_CAN_START to',
+                res.game.player1,
+                res.game.player2,
+                );
                 io
                     .to(res.game.player1.socketID)
                     .to(res.game.player2.socketID)
@@ -62,6 +71,7 @@ io.on('connection', (socket) => {
              * vamos a regresar a ambos al lobby a esperar
              * ser emparejados de nuevo
              */
+            console.log('juego cancelado');
             emails[matchSocketWithEmails[
                 res.game.player1.socketID
             ].email].status = 'WAITING';
