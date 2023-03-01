@@ -121,6 +121,8 @@ io.on('connection', (socket) => {
         io.emit('leaderBoard', { leaderBoard });
     });
 
+
+
     socket.on('LOGIN', (data, callback) => {
         /**
          * login twice from the same session is not allowed
@@ -155,6 +157,13 @@ io.on('connection', (socket) => {
         io.emit('totalParticipants', totalParticipants);
 
         callback('WELCOME');
+    });
+
+    socket.on('UPDATE', (email) => {
+        const oldSocketID = emails[data.email].socketID;
+        emails[data.email].socketID = socket.id;
+        delete matchSocketWithEmails[oldSocketID];
+        matchSocketWithEmails[socket.id] = emails[data.email];
     });
 });
 
