@@ -1,2 +1,2 @@
 # server-tic-tac-toe
-nodejs server
+nodejs server using socket.io for real time communication
