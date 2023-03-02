@@ -161,11 +161,11 @@ io.on('connection', (socket) => {
     });
 
     socket.on('WIN', (data) => {
-        console.log(data.winner, 'has just defeated', data.looser);
+        console.log(data.winner, 'has just defeated', data.loser);
         emails[data.winner.email].winStrike += 1;
         emails[data.winner.email].status = 'WAITING';
-        emails[data.looser.email].winStrike = 0;
-        emails[data.looser.email].status = 'WAITING';
+        emails[data.loser.email].winStrike = 0;
+        emails[data.loser.email].status = 'WAITING';
         leaderBoard = [];
         Object.keys(emails).forEach(key => leaderBoard.push(emails[key]));
         leaderBoard
