@@ -171,6 +171,15 @@ io.on('connection', (socket) => {
         io.emit('leaderBoard', { leaderBoard });
     });
 
+    socket.on('leaderBoard', (_data, callback) => {
+        leaderBoard = [];
+        Object.keys(emails).forEach(key => leaderBoard.push(emails[key]));
+        leaderBoard
+            .sort((a, b) => b.winStrike - a.winStrike)
+            .splice(10);
+        callback({ leaderBoard });
+    });
+
     socket.on('TIRADA', (data) => {
         console.log('inside TIRADA');
         console.log('your socket id is', socket.id);
@@ -218,6 +227,10 @@ io.on('connection', (socket) => {
         io.emit('totalParticipants', totalParticipants);
 
         callback('WELCOME');
+    });
+
+    socket.on('totalParticipants', (_data, callback) => {
+        callback(totalParticipants);
     });
 
     socket.on('UPDATE', (email) => {
