@@ -7,7 +7,6 @@ const eventEmitter = new EventEmitter();
 const app = express();
 const server = createServer(app);
 const io = new Server(server, { cors: { origin: '*' } });
-let totalParticipants = 0;
 let leaderBoard;
 const emails = {};
 const matchSocketWithEmails = {};
@@ -137,13 +136,17 @@ io.on('connection', (socket) => {
                 "NO! it's not anonymous, the email is",
                 matchSocketWithEmails[socket.id].email,
             );
-            totalParticipants -= 1;
-            console.log('totalParticipants', totalParticipants);
-            io.emit('totalParticipants', totalParticipants);
             emails[matchSocketWithEmails[socket.id].email].isActive = false;
             emails[matchSocketWithEmails[socket.id].email].status = 'OFFLINE';
             console.log('emails', emails);
             delete matchSocketWithEmails[socket.id];
+
+            const totalParticipants = Object.keys(emails)
+                .map(key => (emails[key].isActive))
+                .filter(isActive => isActive)
+                .length;
+            console.log('totalParticipants', totalParticipants);
+            io.emit('totalParticipants', totalParticipants);
         }
     });
 
@@ -221,15 +224,23 @@ io.on('connection', (socket) => {
 
         matchSocketWithEmails[socket.id] = emails[data.email];
 
-        totalParticipants += 1;
+        const totalParticipants = Object.keys(emails)
+                .map(key => (emails[key].isActive))
+                .filter(isActive => isActive)
+                .length;
         console.log('totalParticipants', totalParticipants);
-        console.log('matchSocketWithEmails', matchSocketWithEmails);
         io.emit('totalParticipants', totalParticipants);
+        console.log('matchSocketWithEmails', matchSocketWithEmails);
 
         callback('WELCOME');
     });
 
     socket.on('totalParticipants', (_data, callback) => {
+        const totalParticipants = Object.keys(emails)
+                .map(key => (emails[key].isActive))
+                .filter(isActive => isActive)
+                .length;
+        console.log('totalParticipants', totalParticipants);
         callback(totalParticipants);
     });
 
