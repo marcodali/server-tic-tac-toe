@@ -6,7 +6,6 @@ const app = express();
 const server = createServer(app);
 const io = new Server(server, { cors: { origin: '*' } });
 const sessions = {};
-const teacherSession = {};
 
 try {
 
@@ -18,17 +17,21 @@ io.on('connection', (socket) => {
             'inside PROF_START_CLASS',
             res.session,
             res.status,
+            res.user,
             socket.id,
         );
         if (res.session in sessions) {
             // do nothing
         } else if (res.status === 'on') {
-            // create class with empty student list
-            sessions[res.session] = [];
+            // create class with a hacked student list
+            sessions[res.session] = [{
+                user: res.user,
+                raisedHand: false,
+                socketID: socket.id,
+            }];
             console.log(
-                'nueva clase con 0 students empieza...',
+                'nueva clase con 1 persona (el profesor) empieza...',
             );
-            teacherSession[res.session] = socket.id;
         }
     });
 
@@ -47,7 +50,6 @@ io.on('connection', (socket) => {
                 'students eliminando...',
             );
             delete sessions[res.session];
-            delete teacherSession[res.session];
         } else {
             console.error(
                 'No puedo terminar la clase por que',
@@ -84,10 +86,6 @@ io.on('connection', (socket) => {
                     io.to(student.socketID)
                         .emit('STUDENTS_LIST', sessions[res.session]);
                 }
-                // avisar tambien al profesor
-                console.log('sending to teacher', teacherSession[res.session]);
-                io.to(teacherSession[res.session])
-                    .emit('STUDENTS_LIST', sessions[res.session]);
             } else {
                 const msg = `ERROR: el alumno ${
                     res.user
@@ -127,7 +125,7 @@ io.on('connection', (socket) => {
                     user: res.user,
                     raisedHand: false,
                     socketID: socket.id,
-                })
+                });
             }
             console.log(
                 'la clase ahora tiene',
@@ -142,10 +140,6 @@ io.on('connection', (socket) => {
                 io.to(student.socketID)
                     .emit('STUDENTS_LIST', sessions[res.session]);
             }
-            // avisar tambien al profesor
-            console.log('sending to teacher', teacherSession[res.session]);
-            io.to(teacherSession[res.session])
-                .emit('STUDENTS_LIST', sessions[res.session]);
         } else {
             const msg = `ERROR: el alumno ${
                 res.user
@@ -189,10 +183,6 @@ io.on('connection', (socket) => {
                     io.to(student.socketID)
                         .emit('STUDENTS_LIST', sessions[res.session]);
                 }
-                // avisar tambien al profesor
-                console.log('sending to teacher', teacherSession[res.session]);
-                io.to(teacherSession[res.session])
-                    .emit('STUDENTS_LIST', sessions[res.session]);
                 return;
             }
         }
