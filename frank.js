@@ -18,6 +18,7 @@ io.on('connection', (socket) => {
             'inside PROF_START_CLASS',
             res.session,
             res.status,
+            socket.id,
         );
         if (res.session in sessions) {
             // do nothing
@@ -36,6 +37,7 @@ io.on('connection', (socket) => {
             'inside PROF_END_CLASS',
             res.session,
             res.status,
+            socket.id,
         );
         if (res.session in sessions && res.status === 'off') {
             // delete the key from the sessions object
@@ -60,6 +62,7 @@ io.on('connection', (socket) => {
             'inside STUDENT_END_CLASS',
             res.session,
             res.user,
+            socket.id,
         );
         if (res.session in sessions) {
             // delete the student from the session array
@@ -77,10 +80,12 @@ io.on('connection', (socket) => {
 
                 // avisar a otros estudiantes que un estudiante se fue
                 for (const student of sessions[res.session]) {
+                    console.log('sending to student', student.socketID);
                     io.to(student.socketID)
                         .emit('STUDENTS_LIST', sessions[res.session]);
                 }
                 // avisar tambien al profesor
+                console.log('sending to teacher', teacherSession[res.session]);
                 io.to(teacherSession[res.session])
                     .emit('STUDENTS_LIST', sessions[res.session]);
             } else {
@@ -108,6 +113,7 @@ io.on('connection', (socket) => {
             'inside STUDENT_ENTER_CLASS',
             res.session,
             res.user,
+            socket.id,
         );
         if (res.session in sessions) {
             /**
@@ -132,10 +138,12 @@ io.on('connection', (socket) => {
 
             // avisar a otros estudiantes que un estudiante entro
             for (const student of sessions[res.session]) {
+                console.log('sending to student', student.socketID);
                 io.to(student.socketID)
                     .emit('STUDENTS_LIST', sessions[res.session]);
             }
             // avisar tambien al profesor
+            console.log('sending to teacher', teacherSession[res.session]);
             io.to(teacherSession[res.session])
                 .emit('STUDENTS_LIST', sessions[res.session]);
         } else {
@@ -155,6 +163,7 @@ io.on('connection', (socket) => {
             res.user,
             res.session,
             res.raisedHand,
+            socket.id,
         );
         if (res.session in sessions) {
             const student = sessions[res.session]
@@ -176,10 +185,12 @@ io.on('connection', (socket) => {
                  * estudiante hizo algo con su mano
                  */
                 for (const student of sessions[res.session]) {
+                    console.log('sending to student', student.socketID);
                     io.to(student.socketID)
                         .emit('STUDENTS_LIST', sessions[res.session]);
                 }
                 // avisar tambien al profesor
+                console.log('sending to teacher', teacherSession[res.session]);
                 io.to(teacherSession[res.session])
                     .emit('STUDENTS_LIST', sessions[res.session]);
                 return;
