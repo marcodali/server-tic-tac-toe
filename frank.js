@@ -92,7 +92,11 @@ io.on('connection', (socket) => {
     });
 
     socket.on('STUDENT_ENTER_CLASS', (res, callback) => {
-        console.log('inside STUDENT_ENTER_CLASS', res);
+        console.log(
+            'inside STUDENT_ENTER_CLASS',
+            res.session,
+            res.user,
+        );
         if (res.session in sessions) {
             /**
              * find the student in the list,
@@ -124,7 +128,12 @@ io.on('connection', (socket) => {
     });
 
     socket.on('STUDENT_HAND', (res, callback) => {
-        console.log('inside STUDENT_HAND', res);
+        console.log(
+            'inside STUDENT_HAND',
+            res.user,
+            res.session,
+            res.raisedHand,
+        );
         if (res.session in sessions) {
             const student = sessions[res.session]
                 .find(student => student.user === res.user);
@@ -161,7 +170,10 @@ io.on('connection', (socket) => {
 
     socket.on("disconnecting", () => {
         // the Set contains at least the socket ID
-        console.log('anonymous is disconnecting', socket.rooms,);
+        console.log(
+            'anonymous is disconnecting',
+            socket.rooms,
+        );
     });
 });
 
