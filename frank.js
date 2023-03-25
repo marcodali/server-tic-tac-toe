@@ -12,7 +12,11 @@ io.on('connection', (socket) => {
     console.log('anonymous connected');
 
     socket.on('PROF_START_CLASS', (res) => {
-        console.log('inside PROF_START_CLASS', res);
+        console.log('inside PROF_START_CLASS', res.session, res.status);
+    });
+
+    socket.on('STUDENT_ENTER_CLASS', (res) => {
+        console.log('inside STUDENT_ENTER_CLASS', res);
     });
 
     socket.on("disconnecting", () => {
