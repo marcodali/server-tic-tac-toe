@@ -12,7 +12,7 @@ try {
 io.on('connection', (socket) => {
     console.log('anonymous connected');
 
-    socket.on('PROF_START_CLASS', (res) => {
+    socket.on('PROF_START_CLASS', (res, callback) => {
         console.log(
             'inside PROF_START_CLASS',
             res.session,
@@ -32,6 +32,18 @@ io.on('connection', (socket) => {
             console.log(
                 'nueva clase con 1 persona (el profesor) empieza...',
             );
+            callback(sessions[res.session]);
+
+            // avisar a otros estudiantes que la clase empezo
+            let firstTime = true;
+            for (const student of sessions[res.session]) {
+                console.log(`sending to ${
+                    firstTime ? 'teacher' : 'student'
+                }`, student.socketID);
+                io.to(student.socketID)
+                    .emit('STUDENTS_LIST', sessions[res.session]);
+                firstTime = false;
+            }
         }
     });
 
@@ -81,10 +93,14 @@ io.on('connection', (socket) => {
                 callback(sessions[res.session]);
 
                 // avisar a otros estudiantes que un estudiante se fue
+                let firstTime = true;
                 for (const student of sessions[res.session]) {
-                    console.log('sending to student', student.socketID);
+                    console.log(`sending to ${
+                        firstTime ? 'teacher' : 'student'
+                    }`, student.socketID);
                     io.to(student.socketID)
                         .emit('STUDENTS_LIST', sessions[res.session]);
+                    firstTime = false;
                 }
             } else {
                 const msg = `ERROR: el alumno ${
@@ -135,10 +151,14 @@ io.on('connection', (socket) => {
             callback(sessions[res.session]);
 
             // avisar a otros estudiantes que un estudiante entro
+            let firstTime = true;
             for (const student of sessions[res.session]) {
-                console.log('sending to student', student.socketID);
+                console.log(`sending to ${
+                    firstTime ? 'teacher' : 'student'
+                }`, student.socketID);
                 io.to(student.socketID)
                     .emit('STUDENTS_LIST', sessions[res.session]);
+                firstTime = false;
             }
         } else {
             const msg = `ERROR: el alumno ${
@@ -178,10 +198,14 @@ io.on('connection', (socket) => {
                  * avisar a otros estudiantes que un
                  * estudiante hizo algo con su mano
                  */
+                let firstTime = true;
                 for (const student of sessions[res.session]) {
-                    console.log('sending to student', student.socketID);
+                    console.log(`sending to ${
+                        firstTime ? 'teacher' : 'student'
+                    }`, student.socketID);
                     io.to(student.socketID)
                         .emit('STUDENTS_LIST', sessions[res.session]);
+                    firstTime = false;
                 }
                 return;
             }
