@@ -37,7 +37,7 @@ io.on('connection', (socket) => {
                 .emit('START_GAME', {
                     id: p2.id,
                     name: p2.name,
-                    rol: 'tu eres p1',
+                    myRol: 'player1',
                     totalQuestions: 10,
                 });
             io
@@ -45,7 +45,7 @@ io.on('connection', (socket) => {
                 .emit('START_GAME', {
                     id: p1.id,
                     name: p1.name,
-                    rol: 'tu eres p2',
+                    myRol: 'player2',
                     totalQuestions: 5,
                 });
             delete players[p1.id];
