@@ -6,6 +6,8 @@ const app = express();
 const server = createServer(app);
 const io = new Server(server, { cors: { origin: '*' } });
 
+const players = {};
+
 try {
 
 io.on('connection', (socket) => {
@@ -18,6 +20,37 @@ io.on('connection', (socket) => {
             res.name,
             socket.id,
         );
+        if (!(res.id in players)) {
+            players[res.id] = {
+                id: res.id,
+                name: res.name,
+                socketID: socket.id,
+            }
+        }
+
+        const playersArr = Object.keys(players)
+        if (playersArr.length >= 2) {
+            const p1 = players[playersArr.pop()];
+            const p2 = players[playersArr.pop()];
+            io
+                .to(p1.socketID)
+                .emit('START_GAME', {
+                    id: p2.id,
+                    name: p2.name,
+                    rol: 'tu eres p1',
+                    totalQuestions: 10,
+                });
+            io
+                .to(p2.socketID)
+                .emit('START_GAME', {
+                    id: p1.id,
+                    name: p1.name,
+                    rol: 'tu eres p2',
+                    totalQuestions: 5,
+                });
+            delete players[p1.id];
+            delete players[p2.id];
+        }
     });
 
     socket.on("disconnecting", () => {
