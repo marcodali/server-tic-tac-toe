@@ -87,7 +87,12 @@ io.on('connection', (socket) => {
             const p2 = players[playersArr.pop()];
             const gameID = Math.random();
             games[gameID] = { p1, p2};
-            console.log('game created', gameID, JSON.stringify(games[gameID]));
+            console.log(
+                'game created',
+                gameID,
+                JSON.stringify(games[gameID]),
+                'START_GAME is being emmited...',
+            );
             io
                 .to(p1.socketID)
                 .emit('START_GAME', {
