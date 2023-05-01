@@ -125,7 +125,7 @@ io.on('connection', (socket) => {
     socket.on('GIVE_ME_QUESTION', (res) => {
         console.log(
             'inside GIVE_ME_QUESTION',
-            res.gameID,
+            res,
             socket.id,
         );
         const myGame = games[res?.gameID]
@@ -152,7 +152,7 @@ io.on('connection', (socket) => {
             const msg = `ERROR: el user=${
                 socket.id
             } con player=${
-                playersSockets[socket.id]
+                JSON.stringify(playersSockets[socket.id])
             } no pertenece al game ${
                 res?.gameID
             }`;
