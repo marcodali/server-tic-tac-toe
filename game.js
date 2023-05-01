@@ -109,15 +109,21 @@ io.on('connection', (socket) => {
         }
     });
 
-    socket.on('GIVE_ME_QUESTION', (res, callback) => {
-        if (games[res.gameID]
-            && (games[res.gameID].p1.socketID == socket.id
-            || games[res.gameID].p2.socketID == socket.id)
-        ) {
-            callback({
-                question,
-                option,
-            });
+    socket.on('GIVE_ME_QUESTION', (res) => {
+        const myGame = games[res?.gameID]
+        if (myGame && [myGame.p1.socketID, myGame.p2.socketID].includes(socket.id)) {
+            io
+                .to(myGame.p1.socketID)
+                .emit('NEW_QUESTION', {
+                    question,
+                    option,
+                });
+            io
+                .to(myGame.p2.socketID)
+                .emit('NEW_QUESTION', {
+                    question,
+                    option,
+                });
         } else {
             const msg = `ERROR: el user=${
                 socket.id
@@ -127,7 +133,6 @@ io.on('connection', (socket) => {
                 res?.gameID
             }`;
             console.error(msg);
-            callback(msg);
         }
     });
 
