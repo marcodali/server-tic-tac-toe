@@ -83,10 +83,11 @@ io.on('connection', (socket) => {
         const playersArr = Object.keys(players)
         if (playersArr.length >= 2) {
             console.info('playersArr.length DO IS bigger than 2, matching...');
-            const p1 = players[playersArr.pop()];
-            const p2 = players[playersArr.pop()];
+            const x = players[playersArr.pop()];
+            const y = players[playersArr.pop()];
+            const [p1, p2] = x.name == 'Antonio' ? [x, y] : [y, x];
             const gameID = Math.random();
-            games[gameID] = { p1, p2};
+            games[gameID] = { p1, p2 };
             console.log(
                 'game created',
                 gameID,
