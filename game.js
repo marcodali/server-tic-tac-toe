@@ -82,10 +82,12 @@ io.on('connection', (socket) => {
 
         const playersArr = Object.keys(players)
         if (playersArr.length >= 2) {
+            console.info('playersArr.length DO IS bigger than 2, matching...');
             const p1 = players[playersArr.pop()];
             const p2 = players[playersArr.pop()];
             const gameID = Math.random();
             games[gameID] = { p1, p2};
+            console.log('game created', gameID, JSON.stringify(games[gameID]));
             io
                 .to(p1.socketID)
                 .emit('START_GAME', {
@@ -106,12 +108,28 @@ io.on('connection', (socket) => {
                 });
             delete players[p1.id];
             delete players[p2.id];
+        } else {
+            console.error(
+                'playersArr.length is not bigger than 2 so I cannot match',
+                playersArr.length
+            );
         }
     });
 
     socket.on('GIVE_ME_QUESTION', (res) => {
+        console.log(
+            'inside GIVE_ME_QUESTION',
+            res.gameID,
+            socket.id,
+        );
         const myGame = games[res?.gameID]
         if (myGame && [myGame.p1.socketID, myGame.p2.socketID].includes(socket.id)) {
+            console.info(
+                'game found',
+                JSON.stringify(myGame),
+                socket.id,
+                'is p1 || p2 so emmiting NEW_QUESTION...',
+            );
             io
                 .to(myGame.p1.socketID)
                 .emit('NEW_QUESTION', {
